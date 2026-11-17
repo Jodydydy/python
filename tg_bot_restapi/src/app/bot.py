@@ -1,8 +1,10 @@
+import requests
 from sqlalchemy import select
+from sqlalchemy.dialects.postgresql import insert
 from telebot.async_telebot import AsyncTeleBot
 from models.user import User, context_mode, CONTEXT_LIMITS
 from models.messsage import Message
-from core.config import BOT_TOKEN, generate_response 
+from core.config import BOT_TOKEN, GIGACHAT_API_URL, GIGACHAT_MODEL, MAX_TOKENS, STREAM, TEMPERATURE, get_token 
 from sqlalchemy.ext.asyncio import AsyncSession
 from core.session import SessionLocal
 import asyncio
@@ -10,10 +12,33 @@ import asyncio
 bot = AsyncTeleBot(BOT_TOKEN)
 
 
+async def generate_response(messages: list) -> str:
+    token = get_token()
+
+    headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': f'Bearer {token}'
+    }
+
+    payload ={
+        "model": GIGACHAT_MODEL,
+        "messages": messages,
+        "temperature": TEMPERATURE,
+        "max_tokens": MAX_TOKENS,
+        "stream": STREAM
+    }
+
+    response = requests.post(GIGACHAT_API_URL, headers=headers, json=payload, verify=False)
+
+    return response.json()['choices'][0]['message']['content']
+
+
 async def get_user_by_id(session: AsyncSession, user_id: int):
     result = await session.execute(select(User).where(User.id == user_id))
 
     return result.scalar_one_or_none() 
+
 
 async def get_recent_messages(session: AsyncSession, user_id, limit: int):
 
@@ -34,12 +59,12 @@ async def set_context_mode(message):
     mode = parts[-1]
 
     async with SessionLocal() as session:
-        user = await get_user_by_id(session, user_id)
-        if user is None:
-            user = User(id=user_id, username=message.from_user.username)
-            session.add(user)
-        user.context_mode = mode
+        insert_stmt = insert(User).values({'id':user_id, 'username':message.from_user.username, 'context_mode':mode})
+        user_stmt = insert_stmt.on_conflict_do_update(index_elements=['id'], set_={'context_mode':mode})
+        await session.execute(user_stmt)
+
         await session.commit()
+
 
 @bot.message_handler(commands=['start'])
 async def send_welcome(message):
@@ -52,11 +77,12 @@ async def generate(message):
     user_id = message.from_user.id
 
     async with SessionLocal() as session:
-        user = await get_user_by_id(session=session, user_id=user_id)
 
-        if user is None:
-            user = User(id=user_id, username=message.from_user.username, context_mode="normal")
-            session.add(user)
+        insert_stmt = insert(User).values({'id':user_id, 'username':message.from_user.username, 'context_mode':"normal"})
+        user_stmt = insert_stmt.on_conflict_do_nothing(index_elements=['id'])
+        await session.execute(user_stmt)
+
+        user = await get_user_by_id(session=session, user_id=user_id)
             
         session.add(Message(user_id=user_id, role='user', content=message.text) )         
 
@@ -68,7 +94,7 @@ async def generate(message):
     messages = [{'role': msg.role, 'content': msg.content} for msg in reversed(history)]
 
 
-    answer = generate_response(messages)
+    answer = await generate_response(messages)
     async with SessionLocal() as session:
         session.add(Message(user_id=user_id, role='assistant', content=answer))
         await session.commit() 
@@ -76,10 +102,8 @@ async def generate(message):
     await bot.send_message(message.chat.id, text=answer, parse_mode="HTML")
 
 
-
 def main():
     asyncio.run(bot.polling(non_stop=True, request_timeout=90))
-
 
 
 if __name__ == "__main__":
