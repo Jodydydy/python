@@ -1,0 +1,39 @@
+GET http://localhost:8000/login
+Content-Type: application/json
+Authorization: Basic user1 pass3
+
+
+###
+Post http://localhost:8000/register
+Content-Type: application/json
+
+{
+    "username":"user1",
+    "password":"correctpass"
+}
+
+###
+GET http://localhost:8000/login 
+Content-Type: application/json
+Authorization: Basic user1 correctpass
+
+
+###
+GET http://localhost:8000/login 
+Content-Type: application/json
+
+
+###
+GET http://localhost:8000/docs
+
+### 2. Попытка скачать схему БЕЗ авторизации (Должен вернуть 401 Unauthorized)
+GET http://localhost:8000/openapi.json
+
+### 3. Успешный вход в документацию (Должен вернуть 200 OK и HTML-код страницы)
+# Замени 'admin' и 'admin_pass' на свои значения из DOCS_USER и DOCS_PASSWORD
+GET http://localhost:8000/docs
+Authorization: Basic admin admin
+
+### 4. Успешное скачивание схемы (Должен вернуть 200 OK и JSON-спецификацию)
+GET http://localhost:8000/openapi.json
+Authorization: Basic admin admin

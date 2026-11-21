@@ -1,0 +1,26 @@
+{
+  "algorithm": "deny-overrides",
+  "rules": [
+    {
+      "id": "admin_can_crud",
+      "effect": "permit",
+      "actions": ["*"],
+      "resource": { "type": "page" },
+      "roles": ["admin"]
+    },
+    {
+      "id": "user_can_ru",
+      "effect": "permit",
+      "actions": ["read", "update", "protected_post", "protected_read", "protected_put", "protected_delete"],
+      "resource": { "type": "page" },
+      "roles": ["user"] 
+    },
+    {
+      "id": "guest_can_r",
+      "effect": "permit",
+      "actions": ["read", "protected_read"],
+      "resource": { "type": "page" },
+      "roles": ["guest"] 
+    }
+  ]
+}

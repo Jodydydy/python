@@ -1,0 +1,16 @@
+POST http://localhost:8000/create_user
+Content-Type: application/json
+
+{
+    "name": "Alice",
+    "email": "alice@example.com",
+    "age": 30,
+    "is_subscribed": true
+}
+
+
+###
+GET http://localhost:8000/product/202
+
+###
+GET  http://localhost:8000/products/search?keyword=phone&category=Electronics&limit=5

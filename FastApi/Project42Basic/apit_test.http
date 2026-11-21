@@ -1,0 +1,12 @@
+POST http://localhost:8000/login
+Content-Type: application/json
+
+{
+  "username": "admin",
+  "password": "adminpass"
+}
+
+###
+
+GET http://localhost:8000/protected_resource
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsImV4cCI6MTc5MzY1MDA1OH0.Cs1jkwtxIg-YswRLZu3liNvTbJtpx1MFBEm8qMSHtrU

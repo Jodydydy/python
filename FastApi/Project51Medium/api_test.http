@@ -1,0 +1,50 @@
+POST http://127.0.0.1:8000/todos
+Content-Type: application/json
+
+{
+    "title": "Do math",
+    "description": "Do some math",
+    "user_id": 1
+}
+
+###
+POST http://127.0.0.1:8000/users
+Content-Type: application/json
+
+{
+    "username": "user1",
+    "password": "pass1"
+}
+
+### 
+GET http://127.0.0.1:8000/todos/48
+
+###
+GET http://127.0.0.1:8000/todos_users/1
+
+###
+PUT http://127.0.0.1:8000/todos_update/48
+Content-Type: application/json
+
+{
+    "title": "Do math",
+    "description": "Do some calculation",
+    "completed": true
+}
+###
+PUT http://127.0.0.1:8000/todos_users_update/1
+Content-Type: application/json
+
+{
+    "title": "Do giggles",
+    "description": "Do some funny",
+    "completed": true
+}
+###
+DELETE  http://127.0.0.1:8000/todos_delete/49
+
+###
+DELETE  http://127.0.0.1:8000/todos_users_delete/1
+
+###
+DELETE  http://127.0.0.1:8000/users_delete/1

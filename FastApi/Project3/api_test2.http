@@ -1,0 +1,11 @@
+POST http://localhost:8000/feedback?is_premium=true
+Content-Type: application/json
+
+{
+    "name": "Виктория",
+    "message": "Подробные примеры из реальных проектов помогают понять нюансы разработки",
+    "contact": {
+        "email": "vika@protonmail.com",
+        "phone": "7905f234567а"
+    }
+}

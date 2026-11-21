@@ -1,0 +1,22 @@
+POST http://localhost:8000/register  
+Content-Type: application/json  
+
+{ "username": "alice", "password": "qwerty123" } 
+
+###
+
+POST http://localhost:8000/login  
+Content-Type: application/json  
+
+{ "username": "alice", "password": "qwerty123" }
+
+
+###
+POST http://localhost:8000/refresh
+Content-Type: application/json  
+
+{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFsaWNlIiwidHlwZSI6InJlZnJlc2giLCJleHAiOjE3OTM3OTkzNjZ9.bccMWQI7w0vq9GVejXwQ_UOTqHlnpz73TNQDFJTinD8"}
+
+###
+GET http://localhost:8000/protected_resource  
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFsaWNlIiwidHlwZSI6ImFjY2VzcyIsImV4cCI6MTc5MzgwMDI5MH0.CE7JCdeGla9C6CF7cCnQRS1ZLIEJohdJgOH6AbREEAc
