@@ -1,7 +1,0 @@
-POST http://localhost:8000/user
-Content-Type: application/json
-
-{
-  "name": "Alex",
-  "age": 22
-}

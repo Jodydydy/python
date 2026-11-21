@@ -1,8 +1,0 @@
-POST http://localhost:8000/feedback
-Content-Type: application/json
-
-{
-    "name": "АF",
-    "message": "тут сплошные редиски кругом, житья совсем не дают"
-}
-

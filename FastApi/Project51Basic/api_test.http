@@ -1,4 +1,0 @@
-POST http://127.0.0.1:8000/register
-Content-Type: application/json
-
-{"username": "user1", "password": "pass1"}
