@@ -24,3 +24,7 @@ class MessageRequest(BaseModel):
     text: str
 
 
+class MessageResponse(BaseModel):
+    answer: str
+
+

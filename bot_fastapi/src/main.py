@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
 from loguru import logger
 import httpx
 
-from models.messsage import MessageRequest
+from models.messsage import MessageRequest, MessageResponse
 
 
 @asynccontextmanager
@@ -43,15 +43,15 @@ def get_msg_repository(request: Request) -> MessageRepository:
     return SQLAlchemyMessageRepository(SessionLocal=request.app.state.SessionLocal)
 
 
-@app.post('/chat', response_model=dict[str, str])
-async def chat(user_id: int, username: str, text: str, llm_client: BaseLLMClient = Depends(get_llm_client), repository: MessageRepository = Depends(get_msg_repository)) -> dict[str, str]:
-    logger.info(f"User: {user_id} sent message")
+@app.post('/chat', response_model=MessageResponse)
+async def chat(message: MessageRequest, llm_client: BaseLLMClient = Depends(get_llm_client), repository: MessageRepository = Depends(get_msg_repository)) -> MessageResponse:
+    logger.info(f"User: {message.user_id} sent message")
     
-    message = MessageRequest(user_id=user_id, username=username, text=text)
+
     answer = await llm_generate_answer(message=message, llm_client=llm_client, repository=repository)
 
-    logger.info(f"Answer for User: {user_id} successfully generated")
-    return {'Answer': answer}
+    logger.info(f"Answer for User: {message.user_id} successfully generated")
+    return MessageResponse(answer=answer)
 
 
 @app.patch('/set_context', response_model=dict[str, str])
