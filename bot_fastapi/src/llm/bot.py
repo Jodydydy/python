@@ -1,15 +1,18 @@
+from dataclasses import dataclass
 import uuid
 
+import httpx
+
+from core.config import Settings
 from interfaces.baseLLMClient import BaseLLMClient
 
-
+@dataclass(slots=True)
 class GigaChatClient(BaseLLMClient):
 
-    def __init__(self, settings, async_client):
-        self.settings = settings
-        self.async_client = async_client
+    settings: Settings 
+    async_client: httpx.AsyncClient
 
-    async def get_token(self):
+    async def get_token(self) -> str:
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
             'Accept': 'application/json',
@@ -25,7 +28,7 @@ class GigaChatClient(BaseLLMClient):
     
 
 
-    async def generate_response(self, messages: list) -> str:
+    async def generate_response(self, messages: list[dict[str, str]]) -> str:
         token = await self.get_token()
 
         headers = {

@@ -1,18 +1,20 @@
+from collections.abc import Sequence
+
 from sqlalchemy import select
 from sqlalchemy.dialects.postgresql import insert
 from interfaces.messageRepository import MessageRepository
 from models.user import User, context_mode
 from models.messsage import Message
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
 
     
 
 class SQLAlchemyMessageRepository(MessageRepository):
 
-    def __init__(self, SessionLocal):
+    def __init__(self, SessionLocal: async_sessionmaker[AsyncSession]) -> None:
         self.SessionLocal = SessionLocal
 
-    async def get_user_messages(self, user_id: int, username: str, text: str) -> list:
+    async def get_user_messages(self, user_id: int, username: str, text: str) -> list[dict[str, str]]:
         
         async with self.SessionLocal() as session:
         
@@ -33,13 +35,13 @@ class SQLAlchemyMessageRepository(MessageRepository):
         return messages
 
 
-    async def add_new_message(self, user_id: int, content):
+    async def add_new_message(self, user_id: int, content: str) -> None:
         async with self.SessionLocal() as session:
             session.add(Message(user_id=user_id, role='assistant', content=content))
             await session.commit() 
 
 
-    async def set_context_mode(self, user_id, context_mode):
+    async def set_context_mode(self, user_id: int, context_mode: str) -> None:
         async with self.SessionLocal() as session:
             insert_stmt = insert(User).values({'id':user_id, 'context_mode':context_mode})
             user_stmt = insert_stmt.on_conflict_do_update(index_elements=['id'], set_={'context_mode':context_mode})
@@ -48,13 +50,13 @@ class SQLAlchemyMessageRepository(MessageRepository):
             await session.commit()
 
 
-async def get_user_by_id(session: AsyncSession, user_id: int):
+async def get_user_by_id(session: AsyncSession, user_id: int) -> User|None:
     result = await session.execute(select(User).where(User.id == user_id))
 
     return result.scalar_one_or_none() 
 
 
-async def get_recent_messages(session: AsyncSession, user_id: int, limit: int):
+async def get_recent_messages(session: AsyncSession, user_id: int, limit: int) -> Sequence[Message]:
 
     result = await session.execute(select(Message).where(Message.user_id == user_id).order_by(Message.id.desc()).limit(limit))
 
